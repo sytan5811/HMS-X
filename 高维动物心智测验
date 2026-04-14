@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高维动物心智测验</title>
+    <style>
+        /* 极致暗黑美学 - 架构师高定版 */
+        :root { --main-bg: #030303; --text-primary: #e5e5e5; --text-muted: #555; --accent: #fff; }
+        body {
+            background-color: var(--main-bg); color: var(--text-primary);
+            font-family: 'Helvetica Neue', 'PingFang SC', Arial, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, #151515 0%, transparent 60%);
+        }
+        #app { width: 100%; max-width: 720px; padding: 40px 20px; box-sizing: border-box; }
+        
+        /* 视图切换动画 */
+        .view-section { display: none; opacity: 0; transition: opacity 0.6s ease; }
+        .view-section.active { display: block; opacity: 1; animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 封面样式 */
+        .cover-container { text-align: center; padding: 60px 0; }
+        .cover-glitch { font-size: 14px; letter-spacing: 8px; color: var(--text-muted); font-family: monospace; margin-bottom: 20px; }
+        .cover-title { font-size: 48px; font-weight: 800; margin-bottom: 30px; line-height: 1.2; letter-spacing: 2px; }
+        .cover-desc { font-size: 16px; color: #888; line-height: 1.8; max-width: 500px; margin: 0 auto 60px; }
+        .start-btn {
+            background: transparent; color: var(--accent); border: 1px solid #444;
+            padding: 20px 60px; font-size: 16px; letter-spacing: 4px; border-radius: 4px;
+            cursor: pointer; transition: all 0.4s; text-transform: uppercase;
+        }
+        .start-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 30px rgba(255,255,255,0.2); }
+
+        /* 答题区样式 */
+        .header-text { font-size: 13px; letter-spacing: 5px; color: var(--text-muted); margin-bottom: 24px; font-family: monospace; }
+        .question-title { font-size: 24px; font-weight: 400; line-height: 1.6; margin-bottom: 40px; }
+        .option-btn {
+            display: block; width: 100%; background: rgba(255,255,255,0.02); color: #b0b0b0;
+            border: 1px solid #222; padding: 20px 24px; margin-bottom: 16px; text-align: left;
+            font-size: 15px; border-radius: 8px; cursor: pointer; transition: all 0.3s; line-height: 1.5;
+        }
+        .option-btn:hover { background: #111; border-color: #666; color: #fff; transform: translateX(5px); box-shadow: -3px 0 0 0 #fff; }
+        .option-index { color: #555; margin-right: 15px; font-family: monospace; }
+
+        /* 照片收容舱及结果页 */
+        .result-container { text-align: center; }
+        .photo-frame {
+            width: 300px; height: 300px; margin: 0 auto 40px; border-radius: 12px;
+            background: #080808; border: 1px solid #333; display: flex; justify-content: center; align-items: center;
+            overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .photo-placeholder { font-size: 12px; color: #444; letter-spacing: 2px; font-family: monospace; text-align: center; line-height: 2; }
+        .result-title { font-size: 42px; font-weight: bold; margin-bottom: 20px; }
+        .result-desc { font-size: 16px; color: #888; line-height: 1.8; max-width: 500px; margin: 0 auto; }
+        
+        /* 进度条 */
+        .progress-bar { width: 100%; height: 2px; background: #222; margin-bottom: 40px; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 0.4s ease; }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <div id="view-cover" class="view-section active cover-container">
+            <div class="cover-glitch">SYSTEM INITIALIZED</div>
+            <h1 class="cover-title">高维意识扫描<br>跨物种鉴定系统</h1>
+            <p class="cover-desc">本系统将通过 16 道深层潜意识探针，绕过你大脑的表层防御机制，精准重构出你在这颗蓝色星球上的真实生物学投影。准备好直面你自己了吗？</p>
+            <button class="start-btn" onclick="startTest()">Initiate Scan</button>
+        </div>
+
+        <div id="view-test" class="view-section">
+            <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+            <div class="header-text" id="q-counter">SEC. 1 / 16</div>
+            <div class="question-title" id="q-title">题目加载中...</div>
+            <div id="q-options" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
+        <div id="view-loading" class="view-section cover-container">
+            <div class="header-text" style="animation: pulse 1s infinite alternate; font-size: 16px; margin-top:100px;">
+                [ 正在突破意识防火墙，进行生物特征匹配... ]
+            </div>
+        </div>
+
+        <div id="view-result" class="view-section result-container">
+            <div class="header-text">BIOLOGICAL ENTITY MATCHED</div>
+            <div class="photo-frame">
+                <img id="result-img" src="" alt="Entity Portrait">
+                <div class="photo-placeholder" id="photo-placeholder">
+                    [ 影像空缺 ]<br>等待指挥官接入高维照片
+                </div>
+            </div>
+            <div class="result-title" id="result-name">未知生物</div>
+            <div class="result-desc" id="result-desc">分析数据异常。</div>
+            <button class="start-btn" style="margin-top: 50px; padding: 15px 40px; font-size: 12px;" onclick="location.reload()">REBOOT SEQUENCE</button>
+        </div>
+    </div>
+
+    <script>
+        // 核心题库：16题矩阵，涵盖 E/I, S/N, T/F, J/P
+        const questions = [
+            // E/I 维度 (能量获取)
+            { dim: 'EI', title: "难得的假期，你的潜意识更渴望将肉体安置在何处？", options: [
+                { text: "必须冲向室外，去充满文化气息的异国街头大杀四方，吸收人群能量。", type: 'E' },
+                { text: "立刻拉上三五好友，去找城里最地道、最热闹的餐厅疯狂输出。", type: 'E' },
+                { text: "独自瘫在熟悉的沙发上，盯着小屏幕刷流媒体，只要我不动舒适度就在。", type: 'I' },
+                { text: "找个曾去过的安静角落（比如某个亚洲小岛）彻底断网，静静发呆充电。", type: 'I' }
+            ]},
+            { dim: 'EI', title: "在一个完全陌生的社交场合（如行业交流会），你的运作模式是？", options: [
+                { text: "自动开启雷达，精准切入人群中心，成为话题的发起者。", type: 'E' },
+                { text: "虽然不主动找人，但只要有人搭话，就能瞬间进入亢奋的聊天状态。", type: 'E' },
+                { text: "寻找最舒服且不显眼的角落拿杯饮料，进入“节能待机”状态。", type: 'I' },
+                { text: "表面礼貌微笑，大脑已经在倒计时计算还有多久可以合法回家。", type: 'I' }
+            ]},
+            { dim: 'EI', title: "你的手机里常年活跃着几个百人群，你的常态是？", options: [
+                { text: "永远的接梗王，群里不能没有我的表情包和高见。", type: 'E' },
+                { text: "遇到感兴趣的话题（比如哪里的炸鱼薯条好吃）就会疯狂刷屏参与。", type: 'E' },
+                { text: "终极潜水员，静静地看着人类的悲欢，绝不留下任何发言记录。", type: 'I' },
+                { text: "早就开启了消息免打扰，甚至觉得那些红点非常刺眼。", type: 'I' }
+            ]},
+            { dim: 'EI', title: "经过一整天高强度的脑力劳动后，你需要如何回血？", options: [
+                { text: "组局去吃夜宵或去酒吧，靠外界的喧闹和新鲜空气洗刷疲惫。", type: 'E' },
+                { text: "给最亲近的朋友打电话，疯狂吐槽今天发生的所有破事。", type: 'E' },
+                { text: "彻底切断所有社交信号，洗个热水澡，进入无社交的隔离舱状态。", type: 'I' },
+                { text: "沉浸在自己极度私人的爱好中（比如默默拆解一个机械零件）。", type: 'I' }
+            ]},
+
+            // S/N 维度 (信息感知)
+            { dim: 'SN', title: "当你漫步在一条历史悠久的河流旁（比如泰晤士河），你的大脑在干什么？", options: [
+                { text: "观察河水的颜色，感受微风的温度，评价岸边长椅的材质是否舒适。", type: 'S' },
+                { text: "寻找附近哪里有卖最正宗的当地美食，大脑已经开始分泌唾液。", type: 'S' },
+                { text: "自动脑补出极具张力的画面，幻想自己正迈着天后级 MV 里的冷艳台步一镜到底。", type: 'N' },
+                { text: "思考河流的历史变迁，以及这座城市百年来对人类文明走向的深远隐喻。", type: 'N' }
+            ]},
+            { dim: 'SN', title: "在顶级巨幕影院看一部期待已久的大片，最吸引你的是？", options: [
+                { text: "极致的物理视听震撼，清晰入微的画面细节和爆裂的音浪。", type: 'S' },
+                { text: "演员衣服的材质、场景的真实感以及那些酷炫的动作设计。", type: 'S' },
+                { text: "导演在叙事深层埋下的哲学隐喻、象征手法以及开放式结局。", type: 'N' },
+                { text: "电影引发的对平行宇宙、人类未来或高维空间等抽象概念的遐想。", type: 'N' }
+            ]},
+            { dim: 'SN', title: "听一首你绝对偶像的新歌时，你的第一反应是？", options: [
+                { text: "立刻被绝佳的编曲、清晰的鼓点节奏和演唱者的转音技巧抓住耳朵。", type: 'S' },
+                { text: "跟着旋律抖腿，觉得这首歌非常适合在开车或者健身的时候听。", type: 'S' },
+                { text: "感知整首歌曲传递的情绪力量，并在脑海中迅速构建出一段意识流的画面。", type: 'N' },
+                { text: "立刻去分析歌词背后的隐喻，试图解读偶像这次想要表达的先锋概念。", type: 'N' }
+            ]},
+            { dim: 'SN', title: "去一个陌生的超级市场买东西，你的行为路径是？", options: [
+                { text: "脑子里有一份明确的清单，直奔目标货架，精准拿取所需商品后结账。", type: 'S' },
+                { text: "对比几个牌子的价格和净含量，选出性价比最高、最实在的那一个。", type: 'S' },
+                { text: "被奇特包装的零食吸引，脑子里开始幻想它吃起来的奇妙感觉，最后买了一堆计划外的。", type: 'N' },
+                { text: "在调料区看着各国的香料，不知不觉开始在脑海里构思一部关于香料贸易的小说。", type: 'N' }
+            ]},
+
+            // T/F 维度 (判断决策)
+            { dim: 'TF', title: "当你在网上看到一段充满逻辑漏洞的极端言论时，你的操作是？", options: [
+                { text: "立刻敲击键盘，扔出一张『稻草人谬误』图表进行降维打击。", type: 'T' },
+                { text: "冷笑一声，在心里默默将其归类为“缺乏批判性思维”的样本后划走。", type: 'T' },
+                { text: "感到一阵生理上的不适，写了一段话试图唤醒对方的良知和共情。", type: 'F' },
+                { text: "不想破坏心情，赶紧转发几个搞笑猫咪视频来净化自己的时间线。", type: 'F' }
+            ]},
+            { dim: 'TF', title: "朋友半夜哭着打电话说自己搞砸了一切，你下意识的反应是？", options: [
+                { text: "立刻帮他梳理逻辑漏洞，列出三个止损方案，并指出他犯错的核心原因。", type: 'T' },
+                { text: "觉得他的情绪有些缺乏理性，但在表面上还是先用客观的语言稳住局面。", type: 'T' },
+                { text: "不管三七二十一，先跟他一起痛骂那个让他受委屈的人或事，情绪价值拉满。", type: 'F' },
+                { text: "感觉自己的心也跟着碎了，甚至比他还要难过，恨不得立刻飞奔过去给他一个拥抱。", type: 'F' }
+            ]},
+            { dim: 'TF', title: "在团队合作中遇到严重分歧，你认为最应该保全的是？", options: [
+                { text: "绝对的客观真理和项目的最高推进效率，对事不对人。", type: 'T' },
+                { text: "优胜劣汰，谁的数据最好、逻辑最严密就听谁的，哪怕伤和气。", type: 'T' },
+                { text: "团队内部的和谐氛围，如果赢了项目却失去了凝聚力，毫无意义。", type: 'F' },
+                { text: "每个人的情绪感受，必须确保每个成员的声音都被温柔地倾听。", type: 'F' }
+            ]},
+            { dim: 'TF', title: "面对一份极其严厉但十分中肯的批评，你的内心弹幕是？", options: [
+                { text: "“虽然难听，但他指出的逻辑漏洞确实存在，我必须立刻优化。”", type: 'T' },
+                { text: "“有道理。只要对我能力提升有帮助，语气多差我都能过滤掉。”", type: 'T' },
+                { text: "“他难道不能换一种让人舒服一点的方式说吗？感觉被深深刺痛了。”", type: 'F' },
+                { text: "“他是不是讨厌我？我做错了什么让他对我产生这么大的敌意？”", type: 'F' }
+            ]},
+
+            // J/P 维度 (生活方式)
+            { dim: 'JP', title: "面对即将到来的伦敦假期旅行，你的状态是？", options: [
+                { text: "必须提前做好 Excel 表格，连去哪看议会大厦、哪家店吃炸鱼都安排到分钟。", type: 'J' },
+                { text: "酒店、机票、核心景点的门票必须在三个月前全部锁定，容不得半点失控。", type: 'J' },
+                { text: "主打一个随性，走到哪算哪，说不定半路看到个摩天轮就直接上去看风景了。", type: 'P' },
+                { text: "连行李都是出发前两小时闭着眼睛塞的，相信车到山前必有路。", type: 'P' }
+            ]},
+            { dim: 'JP', title: "你的电脑桌面或手机屏幕目前的状况是？", options: [
+                { text: "文件和 App 严格按照颜色、功能分类放进文件夹，壁纸干干净净。", type: 'J' },
+                { text: "没有任何多余的杂物，每天下班前都会进行一次强迫症般的“清空回收站”。", type: 'J' },
+                { text: "充满混沌的生机，截屏、文档满天飞，找东西全靠系统的全局搜索。", type: 'P' },
+                { text: "红点角标有几千个未读，但你完全不介意，这才是原生态的互联网生活。", type: 'P' }
+            ]},
+            { dim: 'JP', title: "在处理一项截止日期在一个月后的重要任务时，你会？", options: [
+                { text: "立即倒推时间表，规划每天完成的进度，绝不允许自己熬夜赶工。", type: 'J' },
+                { text: "拿到任务的第一天就开始动工，最好能提前一周交差以求心安。", type: 'J' },
+                { text: "前 29 天都在寻找灵感和摸鱼，潜意识觉得时间还早得很。", type: 'P' },
+                { text: "在最后 24 小时进入肾上腺素飙升的神之领域，一边狂打字一边后悔。", type: 'P' }
+            ]},
+            { dim: 'JP', title: "做饭对你来说，更像是一场什么活动？", options: [
+                { text: "精密的化学实验，克重必须精准，火候（比如180°C）必须严格遵守菜谱。", type: 'J' },
+                { text: "严格按照备菜、烹饪、清理的流水线进行，做完饭厨房依然一尘不染。", type: 'J' },
+                { text: "爵士乐的即兴表演，调料多少全凭今天的心情和玄学手感。", type: 'P' },
+                { text: "打开冰箱看有什么剩菜就一锅乱炖，做出来什么样纯靠天意。", type: 'P' }
+            ]}
+        ];
+
+        // 终极高维动物字典 (去除MBTI标签，适配 V3.1 本地资产注入)
+        // [关键操作] 指挥官，请确保您的图片文件存在于 index.html 相同的目录下
+        const animalMap = {
+            'INTJ': { name: '极地高冷企鹅', desc: '精神内核犹如冰川般冷硬。步伐精准且充满表现欲，眼神中对周遭愚蠢的凡人充满降维打击般的鄙视。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/极地高冷企鹅.png' },
+            'INTP': { name: '哲学家猫头鹰', desc: '常年处于量子纠缠态的物种。大脑堪比超级计算机，能看透一切逻辑谬误，但身体的行动力却永远停留在拨号上网时代。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/哲学家猫头鹰.png' },
+            'ENTJ': { name: '银背大猩猩', desc: '自带 KPI 压迫感的顶级掠食者。看不得一点效率低下，眼神里的杀气足以让你连夜重写人生规划。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/银背大猩猩.png' },
+            'ENTP': { name: '街头霸王海鸥', desc: '永远在寻找乐子和漏洞。睨众生，随时准备为了最后一口炸鱼薯条与路人展开激烈的肢体与哲学辩论。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/街头霸王海鸥.png' },
+            'INFJ': { name: '抑郁羊驼', desc: '拥有上帝视角却极其内耗。仿佛已经预判了宇宙的毁灭，由于过于礼貌，最终只是对着虚空默默叹了一口气。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/抑郁羊驼.png' },
+            'INFP': { name: '玻璃心水母', desc: '晶莹剔透且极其易碎。稍微大一点的现实水流经过，身体就会裂开一道缝，急需大量纯粹的爱与赞美才能勉强愈合。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/玻璃心水母.png' },
+            'ENFJ': { name: '泛滥母爱金毛犬', desc: '活着的散光灯，无时无刻不在散发温暖。致力于把所有不想互动的碳基生物强行抱在一起，试图达成世界和平。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/泛滥母爱金毛犬.png' },
+            'ENFP': { name: '撒手没哈士奇', desc: '脑回路和走位一样完全无法被地球重力捕捉。上一秒还在悲伤，下一秒就能在废墟中咬着闪光球疯狂蹦迪。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/撒手没哈士奇.png' },
+            'ISTJ': { name: '面瘫藏狐', desc: '极致的秩序守护者。顶着一张正方形的脸，无论世界末日还是外星人入侵，它都只关心自己今天打卡有没有迟到。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/面瘫藏狐.png' },
+            'ISFJ': { name: '焦虑囤积狂松鼠', desc: '永远在未雨绸缪。神经质地东张西望，总觉得明天就要断粮，为了照顾全家老小已经熬出了深深的黑眼圈。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/焦虑囤积狂松鼠.png' },
+            'ESTJ': { name: '强迫症公鸡', desc: '规则的化身。拿着大喇叭和秒表度日，如果太阳没有在规定时间准时升起，它会愤怒地用打鸣把太阳骂出来。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/强迫症公鸡.png' },
+            'ESFJ': { name: '居委会袋鼠', desc: '操碎了八百个心。育儿袋里塞满了邻居的八卦、急救包和打折传单，拉着每一个路人苦口婆心地进行人生指导。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/居委会袋鼠.png' },
+            'ISTP': { name: '极客浣熊', desc: '拒绝与活体碳基生物交流。眼里只有机械和工具，能在三分钟内把一台千万级超跑拆成零件，主打一个硬核独狼。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/极客浣熊.png' },
+            'ISFP': { name: '矛盾体水豚', desc: '情绪稳定阈值极高。世界破破烂烂，它闭眼不看，不是脾气好，只是觉得发火太累。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/矛盾体水豚.png' },
+            'ESTP': { name: '狂野平头哥', desc: '座右铭是“生死看淡，不服就干”。戴着墨镜一路狂飙，追求极致的感官刺激，把每一天都当成好莱坞动作片在活。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/狂野平头哥.png' },
+            'ESFP': { name: '闪耀孔雀', desc: '无法忍受一秒钟的平庸。连喝口水都要摆出红毯 Pose，如果没有观众的注视和尖叫，它的羽毛就会瞬间失去光泽。', imageSrc: 'C:/Users/User/Desktop/cuteanimal/闪耀孔雀.png' }
+        };
+
+        let currentStep = 0;
+        let scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        function startTest() {
+            currentStep = 0;
+            scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+            switchView('view-test');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if (currentStep >= questions.length) {
+                switchView('view-loading');
+                setTimeout(calculateResult, 2500);
+                return;
+            }
+            
+            const q = questions[currentStep];
+            document.getElementById('q-counter').innerText = `SEC. ${currentStep + 1} / ${questions.length}`;
+            document.getElementById('q-title').innerText = q.title;
+            
+            let optionsHtml = '';
+            // 打乱选项顺序，避免全是同一类型的按键堆在一起
+            let shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+            shuffledOptions.forEach((opt, index) => {
+                optionsHtml += `<button class="option-btn" onclick="answerQuestion('${opt.type}')">
+                                  <span class="option-index">0${index + 1} //</span>${opt.text}
+                                </button>`;
+            });
+            document.getElementById('q-options').innerHTML = optionsHtml;
+
+            // 更新进度条
+            const progress = ((currentStep) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+        }
+
+        function answerQuestion(type) {
+            scores[type] += 1;
+            currentStep++;
+            renderQuestion();
+        }
+
+        function calculateResult() {
+            // 维度对决计算
+            const resultType = [
+                scores.E >= scores.I ? 'E' : 'I',
+                scores.S >= scores.N ? 'S' : 'N',
+                scores.T >= scores.F ? 'T' : 'F',
+                scores.J >= scores.P ? 'J' : 'P',
+            ].join('');
+
+            const finalAnimal = animalMap[resultType] || animalMap['INTP']; // 兜底
+
+            document.getElementById('result-name').innerText = finalAnimal.name;
+            document.getElementById('result-desc').innerText = finalAnimal.desc;
+            
+            // [V3.1 本地图片显示逻辑]
+            const resultImg = document.getElementById('result-img');
+            const placeholder = document.getElementById('photo-placeholder');
+
+            // 检查 imageSrc 是否已填入且不是默认路径（资深程序员的边界检查）
+            if (finalAnimal.imageSrc && finalAnimal.imageSrc !== './placeholder.png' && finalAnimal.imageSrc.indexOf('YOUR_IMAGE_URL') === -1) {
+                resultImg.src = finalAnimal.imageSrc;
+                resultImg.style.display = 'block'; // 显示图片
+                placeholder.style.display = 'none'; // 隐藏占位符
+            } else {
+                // 边界防御：无图片时保持占位符显示
+                resultImg.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
+            
+            switchView('view-result');
+        }
+
+        renderQuestion();
+    </script>
+</body>
+</html>
