@@ -206,25 +206,25 @@
             ]}
         ];
 
-        // 终极高维动物字典 (去除MBTI标签，适配 V3.1 本地资产注入)
-        // [关键操作] 指挥官，请确保您的图片文件存在于 index.html 相同的目录下
+        // 终极高维动物字典 (已修复云端路径 Bug)
+        // 架构师警告：请确保 GitHub 上的文件夹名叫 Images (大写I)，且图片全部改为了下方的英文.png
         const animalMap = {
-            'INTJ': { name: '极地高冷企鹅', desc: '精神内核犹如冰川般冷硬。步伐精准且充满表现欲，眼神中对周遭愚蠢的凡人充满降维打击般的鄙视。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/极地高冷企鹅.png' },
-            'INTP': { name: '哲学家猫头鹰', desc: '常年处于量子纠缠态的物种。大脑堪比超级计算机，能看透一切逻辑谬误，但身体的行动力却永远停留在拨号上网时代。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/哲学家猫头鹰.png' },
-            'ENTJ': { name: '银背大猩猩', desc: '自带 KPI 压迫感的顶级掠食者。看不得一点效率低下，眼神里的杀气足以让你连夜重写人生规划。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/银背大猩猩.png' },
-            'ENTP': { name: '街头霸王海鸥', desc: '永远在寻找乐子和漏洞。睨众生，随时准备为了最后一口炸鱼薯条与路人展开激烈的肢体与哲学辩论。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/街头霸王海鸥.png' },
-            'INFJ': { name: '抑郁羊驼', desc: '拥有上帝视角却极其内耗。仿佛已经预判了宇宙的毁灭，由于过于礼貌，最终只是对着虚空默默叹了一口气。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/抑郁羊驼.png' },
-            'INFP': { name: '玻璃心水母', desc: '晶莹剔透且极其易碎。稍微大一点的现实水流经过，身体就会裂开一道缝，急需大量纯粹的爱与赞美才能勉强愈合。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/玻璃心水母.png' },
-            'ENFJ': { name: '泛滥母爱金毛犬', desc: '活着的散光灯，无时无刻不在散发温暖。致力于把所有不想互动的碳基生物强行抱在一起，试图达成世界和平。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/泛滥母爱金毛犬.png' },
-            'ENFP': { name: '撒手没哈士奇', desc: '脑回路和走位一样完全无法被地球重力捕捉。上一秒还在悲伤，下一秒就能在废墟中咬着闪光球疯狂蹦迪。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/撒手没哈士奇.png' },
-            'ISTJ': { name: '面瘫藏狐', desc: '极致的秩序守护者。顶着一张正方形的脸，无论世界末日还是外星人入侵，它都只关心自己今天打卡有没有迟到。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/面瘫藏狐.png' },
-            'ISFJ': { name: '焦虑囤积狂松鼠', desc: '永远在未雨绸缪。神经质地东张西望，总觉得明天就要断粮，为了照顾全家老小已经熬出了深深的黑眼圈。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/焦虑囤积狂松鼠.png' },
-            'ESTJ': { name: '强迫症公鸡', desc: '规则的化身。拿着大喇叭和秒表度日，如果太阳没有在规定时间准时升起，它会愤怒地用打鸣把太阳骂出来。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/强迫症公鸡.png' },
-            'ESFJ': { name: '居委会袋鼠', desc: '操碎了八百个心。育儿袋里塞满了邻居的八卦、急救包和打折传单，拉着每一个路人苦口婆心地进行人生指导。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/居委会袋鼠.png' },
-            'ISTP': { name: '极客浣熊', desc: '拒绝与活体碳基生物交流。眼里只有机械和工具，能在三分钟内把一台千万级超跑拆成零件，主打一个硬核独狼。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/极客浣熊.png' },
-            'ISFP': { name: '矛盾体水豚', desc: '情绪稳定阈值极高。世界破破烂烂，它闭眼不看，不是脾气好，只是觉得发火太累。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/矛盾体水豚.png' },
-            'ESTP': { name: '狂野平头哥', desc: '座右铭是“生死看淡，不服就干”。戴着墨镜一路狂飙，追求极致的感官刺激，把每一天都当成好莱坞动作片在活。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/狂野平头哥.png' },
-            'ESFP': { name: '闪耀孔雀', desc: '无法忍受一秒钟的平庸。连喝口水都要摆出红毯 Pose，如果没有观众的注视和尖叫，它的羽毛就会瞬间失去光泽。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/闪耀孔雀.png' }
+            'INTJ': { name: '极地高冷企鹅', desc: '精神内核犹如冰川般冷硬。步伐精准且充满表现欲，眼神中对周遭愚蠢的凡人充满降维打击般的鄙视。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/penguin.png' },
+            'INTP': { name: '哲学家猫头鹰', desc: '常年处于量子纠缠态的物种。大脑堪比超级计算机，能看透一切逻辑谬误，但身体的行动力却永远停留在拨号上网时代。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/owl.png' },
+            'ENTJ': { name: '银背大猩猩', desc: '自带 KPI 压迫感的顶级掠食者。看不得一点效率低下，眼神里的杀气足以让你连夜重写人生规划。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/gorilla.png' },
+            'ENTP': { name: '街头霸王海鸥', desc: '永远在寻找乐子和漏洞。睨众生，随时准备为了最后一口炸鱼薯条与路人展开激烈的肢体与哲学辩论。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/seagull.png' },
+            'INFJ': { name: '抑郁羊驼', desc: '拥有上帝视角却极其内耗。仿佛已经预判了宇宙的毁灭，由于过于礼貌，最终只是对着虚空默默叹了一口气。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/alpaca.png' },
+            'INFP': { name: '玻璃心水母', desc: '晶莹剔透且极其易碎。稍微大一点的现实水流经过，身体就会裂开一道缝，急需大量纯粹的爱与赞美才能勉强愈合。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/jellyfish.png' },
+            'ENFJ': { name: '泛滥母爱金毛犬', desc: '活着的散光灯，无时无刻不在散发温暖。致力于把所有不想互动的碳基生物强行抱在一起，试图达成世界和平。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/golden.png' },
+            'ENFP': { name: '撒手没哈士奇', desc: '脑回路和走位一样完全无法被地球重力捕捉。上一秒还在悲伤，下一秒就能在废墟中咬着闪光球疯狂蹦迪。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/husky.png' },
+            'ISTJ': { name: '面瘫藏狐', desc: '极致的秩序守护者。顶着一张正方形的脸，无论世界末日还是外星人入侵，它都只关心自己今天打卡有没有迟到。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/fox.png' },
+            'ISFJ': { name: '焦虑囤积狂松鼠', desc: '永远在未雨绸缪。神经质地东张西望，总觉得明天就要断粮，为了照顾全家老小已经熬出了深深的黑眼圈。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/squirrel.png' },
+            'ESTJ': { name: '强迫症公鸡', desc: '规则的化身。拿着大喇叭和秒表度日，如果太阳没有在规定时间准时升起，它会愤怒地用打鸣把太阳骂出来。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/rooster.png' },
+            'ESFJ': { name: '居委会袋鼠', desc: '操碎了八百个心。育儿袋里塞满了邻居的八卦、急救包和打折传单，拉着每一个路人苦口婆心地进行人生指导。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/kangaroo.png' },
+            'ISTP': { name: '极客浣熊', desc: '拒绝与活体碳基生物交流。眼里只有机械和工具，能在三分钟内把一台千万级超跑拆成零件，主打一个硬核独狼。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/raccoon.png' },
+            'ISFP': { name: '矛盾体水豚', desc: '情绪稳定阈值极高。世界破破烂烂，它闭眼不看，不是脾气好，只是觉得发火太累。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/capybara.png' },
+            'ESTP': { name: '狂野平头哥', desc: '座右铭是“生死看淡，不服就干”。戴着墨镜一路狂飙，追求极致的感官刺激，把每一天都当成好莱坞动作片在活。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/honeybadger.png' },
+            'ESFP': { name: '闪耀孔雀', desc: '无法忍受一秒钟的平庸。连喝口水都要摆出红毯 Pose，如果没有观众的注视和尖叫，它的羽毛就会瞬间失去光泽。', imageSrc: 'https://sytan5811.github.io/HMS-X/Images/peacock.png' }
         };
 
         let currentStep = 0;
